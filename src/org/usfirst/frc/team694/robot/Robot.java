@@ -48,7 +48,7 @@ public class Robot extends IterativeRobot {
 
 		MotorEmitter thinRollerEmitter = new MotorEmitter(thinRoller, 0.32);
 
-		player = new Player("res/moonlight.mid");
+		player = new Player("/home/lvuser/resources/moonlight.mid");
 		player.addEmitter(thinRollerEmitter);
 
 		testJoystick = new Joystick(1);

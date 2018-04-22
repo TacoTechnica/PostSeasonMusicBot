@@ -20,6 +20,8 @@ import javax.sound.midi.Track;
  */
 public class Player extends Thread {
 
+	private static final double SPEED_SCALE = 0.1;
+
 	private static final int NOTE_ON = 0x90;
 	private static final int NOTE_OFF = 0x80;
 
@@ -38,6 +40,8 @@ public class Player extends Thread {
 
 	private MidiEvent currentEvent;
 
+	private boolean running;
+	
 	public Player(String fname) {
 		try {
 			seq = MidiSystem.getSequence(new File(fname));
@@ -57,68 +61,78 @@ public class Player extends Thread {
 	}
 
 	@Override
-	public void start() {
-		super.start();
-		startTime = System.currentTimeMillis();
-	}
-
-	@Override
 	public void run() {
 		super.run();
+		System.out.println("[Player] START!");
 
-		long currentTime = System.currentTimeMillis() - startTime;
+		running = true;
+		startTime = System.currentTimeMillis();
 
-		// Play all of the current notes
-		while(currentEvent == null || currentEvent.getTick() <= currentTime) {
-			currentEvent = track.get(eventIndex);
-			MidiMessage m = currentEvent.getMessage();
-			if (m instanceof ShortMessage) {
-				ShortMessage sm = (ShortMessage) m;
-				int note = sm.getData1();
-				int vel = sm.getData2();
+		// Start by the 1st note
+		startTime += (track.get(0).getTick() - 5) / SPEED_SCALE;
 
-				if (sm.getCommand() == NOTE_ON) {
-					System.out.println("[Player] Note on: note " + note);
-					// If we need an emitter here and we have one ready, pop it off and put it here
-					if (!noteMap.containsKey(note)) {
-						if (!readyEmitters.isEmpty()) {
-							Emitter emitter = readyEmitters.pop();
-							emitter.emitNote(note, vel);
-							noteMap.put(note, emitter);
-						} else {
-							System.out.println("[Player] Run out of emitters. Checking if we have any emitters with smaller velocity");
-							// Find smallest emitter
-							int smallestVel = vel;
-							int smallestVelNote = note;
-							Emitter smallestEmitter = null;
-							for(Emitter emitter : noteMap.values()) {
-								if (emitter.getVelocity() <= smallestVel) {
-									smallestVel = vel;
-									smallestEmitter = emitter;
+		while(running) {
+			long currentTime = (long) (SPEED_SCALE * (System.currentTimeMillis() - startTime));
+//			System.out.println("time: " + currentTime + ", " + track.get(0).getTick());
+
+			if (eventIndex >= track.size()) {
+				running = false;
+				break;
+			}
+
+			// Play all of the current notes
+			while(currentEvent == null || currentEvent.getTick() <= currentTime) {
+				currentEvent = track.get(eventIndex);
+				MidiMessage m = currentEvent.getMessage();
+				if (m instanceof ShortMessage) {
+					ShortMessage sm = (ShortMessage) m;
+					int note = sm.getData1();
+					int vel = sm.getData2();
+
+					if (sm.getCommand() == NOTE_ON) {
+						System.out.println("[Player] Note on: note " + note);
+						// If we need an emitter here and we have one ready, pop it off and put it here
+						if (!noteMap.containsKey(note)) {
+							if (!readyEmitters.isEmpty()) {
+								Emitter emitter = readyEmitters.pop();
+								emitter.emitNote(note, vel);
+								noteMap.put(note, emitter);
+							} else {
+								System.out.println("[Player] Run out of emitters. Checking if we have any emitters with smaller velocity");
+								// Find smallest emitter
+								int smallestVel = vel;
+								int smallestVelNote = note;
+								Emitter smallestEmitter = null;
+								for(Emitter emitter : noteMap.values()) {
+									if (emitter.getVelocity() <= smallestVel) {
+										smallestVel = vel;
+										smallestEmitter = emitter;
+									}
+								}
+								if (smallestEmitter != null) {
+									System.out.println("[Player] Replacement emitter found! prev velocity: " + smallestVel + ", new vel: " + vel);
+									// Move to proper note in notemap and start playing
+									noteMap.remove(smallestVelNote);
+									noteMap.put(note, smallestEmitter);
+									smallestEmitter.emitNote(note, vel);
+								} else {
+									System.out.println("[Player] Replacement emitter Not found below vel " + vel);
 								}
 							}
-							if (smallestEmitter != null) {
-								System.out.println("[Player] Replacement emitter found! prev velocity: " + smallestVel + ", new vel: " + vel);
-								// Move to proper note in notemap and start playing
-								noteMap.remove(smallestVelNote);
-								noteMap.put(note, smallestEmitter);
-								smallestEmitter.emitNote(note, vel);
-							} else {
-								System.out.println("[Player] Replacement emitter Not found below vel " + vel);
-							}
+						}
+					} else if (sm.getCommand() == NOTE_OFF) {
+						// If we have an emitter there, pop it off and put it in the ready pile
+						if (noteMap.containsKey(note)) {
+							Emitter emitter = noteMap.remove(note);
+							emitter.silence();
+							readyEmitters.push(emitter);
 						}
 					}
-				} else if (sm.getCommand() == NOTE_OFF) {
-					// If we have an emitter there, pop it off and put it in the ready pile
-					if (noteMap.containsKey(note)) {
-						Emitter emitter = noteMap.remove(note);
-						emitter.silence();
-						readyEmitters.push(emitter);
-					}
 				}
+				eventIndex++;
 			}
-			eventIndex++;
 		}
+		System.out.println("[Player] finish!");
 	}
 
 	
