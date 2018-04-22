@@ -42,6 +42,7 @@ public class Player extends Thread {
 		try {
 			seq = MidiSystem.getSequence(new File(fname));
 			track = seq.getTracks()[0];
+			System.out.println("[Player] TRACK LOADED! " + track.size());
 		} catch (InvalidMidiDataException | IOException e) {
 			System.out.println("Reading had problems");
 			e.printStackTrace();
@@ -77,6 +78,7 @@ public class Player extends Thread {
 				int vel = sm.getData2();
 
 				if (sm.getCommand() == NOTE_ON) {
+					System.out.println("[Player] Note on: note " + note);
 					// If we need an emitter here and we have one ready, pop it off and put it here
 					if (!noteMap.containsKey(note)) {
 						if (!readyEmitters.isEmpty()) {

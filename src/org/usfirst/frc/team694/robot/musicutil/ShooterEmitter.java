@@ -15,7 +15,7 @@ public class ShooterEmitter extends MotorEmitter {
 	public void emitNote(int note, int vel) {
 		this.velocity = vel;
 		double speed = MIDDLE_C_SPEED * getNoteFreq(note);
-		motor.set(ControlMode.Velocity, speed);
+		((WPI_TalonSRX)motor).set(ControlMode.Velocity, speed);
 	}
 
 }

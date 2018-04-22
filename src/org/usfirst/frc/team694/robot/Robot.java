@@ -15,6 +15,8 @@ import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
 
 import edu.wpi.first.wpilibj.IterativeRobot;
 import edu.wpi.first.wpilibj.Joystick;
+import edu.wpi.first.wpilibj.SpeedControllerGroup;
+import edu.wpi.first.wpilibj.drive.DifferentialDrive;
 
 public class Robot extends IterativeRobot {
 
@@ -23,8 +25,14 @@ public class Robot extends IterativeRobot {
 	private static final int SHOOTER_MOTOR_PORT = 7;
 	private static final int THIN_ROLLER_MOTOR_PORT = 6;
 	private static final int WHEEL_ROLLER_MOTOR_PORT = 5;
+	// Drivetrain
+	private static final int FRONT_RIGHT_MOTOR_PORT = 1;
+	private static final int REAR_RIGHT_MOTOR_PORT = 2;
+	private static final int REAR_LEFT_MOTOR_PORT = 3;
+	private static final int FRONT_LEFT_MOTOR_PORT = 4;
 
 	private WPI_TalonSRX shooter, thinRoller, wheelRoller;
+	private SpeedControllerGroup leftDrive, rightDrive;
 
 	private Joystick testJoystick;
 
@@ -35,6 +43,8 @@ public class Robot extends IterativeRobot {
 		shooter = new WPI_TalonSRX(SHOOTER_MOTOR_PORT);
 		thinRoller = new WPI_TalonSRX(THIN_ROLLER_MOTOR_PORT);
 		wheelRoller = new WPI_TalonSRX(WHEEL_ROLLER_MOTOR_PORT);
+		leftDrive = new SpeedControllerGroup(new WPI_TalonSRX(FRONT_LEFT_MOTOR_PORT), new WPI_TalonSRX(REAR_LEFT_MOTOR_PORT));
+		rightDrive = new SpeedControllerGroup(new WPI_TalonSRX(FRONT_RIGHT_MOTOR_PORT), new WPI_TalonSRX(REAR_RIGHT_MOTOR_PORT));
 
 		MotorEmitter thinRollerEmitter = new MotorEmitter(thinRoller, 0.32);
 
@@ -54,6 +64,7 @@ public class Robot extends IterativeRobot {
 
 	@Override
 	public void autonomousInit() {
+		player.start();
 //		motor.config_kP(0, SmartDashboard.getNumber("SHOOTER kP", 0), 1000);
 //		motor.config_kI(0, SmartDashboard.getNumber("SHOOTER kI", 0), 1000);
 //		motor.config_kD(0, SmartDashboard.getNumber("SHOOTER kD", 0), 1000);
@@ -67,7 +78,7 @@ public class Robot extends IterativeRobot {
 	@Override
 	public void teleopPeriodic() {
 		double axis = -1 * testJoystick.getRawAxis(1);
-		thinRoller.set(ControlMode.PercentOutput, axis);
+		thinRoller.set(axis);
 		System.out.println(axis);
 	}
 

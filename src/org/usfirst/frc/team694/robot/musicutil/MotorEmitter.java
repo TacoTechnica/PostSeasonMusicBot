@@ -1,24 +1,26 @@
 package org.usfirst.frc.team694.robot.musicutil;
 
-import com.ctre.phoenix.motorcontrol.ControlMode;
-import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
+import edu.wpi.first.wpilibj.SpeedController;
 
 public class MotorEmitter implements Emitter {
 
+	private static final int MIDDLE_C_MIDI = 60;
+	
 	// When we're doing middle c, what should we scale our output to?
 	protected double middleCScale;
 
-	protected WPI_TalonSRX motor;
+	protected SpeedController motor;
 
 	protected int velocity = 0;
 
-	public MotorEmitter(WPI_TalonSRX motor, double middleCScale) {
+	public MotorEmitter(SpeedController motor, double middleCScale) {
 		this.motor = motor;
 		this.middleCScale = middleCScale;
 	}
 
 	// Returns the frequency our motor needs to travel to create a note
 	protected double getNoteFreq(int note) {
+		note -= MIDDLE_C_MIDI;
 		return middleCScale * Math.pow(2.0, (double) note/12.0);
 	}
 
@@ -26,12 +28,12 @@ public class MotorEmitter implements Emitter {
 	public void emitNote(int note, int velocity) {
 		this.velocity = velocity;
 		double freq = getNoteFreq(note);
-		motor.set(ControlMode.PercentOutput, freq);
+		motor.set(freq);
 	}
 
 	@Override
 	public void silence() {
-		motor.set(ControlMode.PercentOutput, 0);
+		motor.set(0);
 	}
 
 	@Override
