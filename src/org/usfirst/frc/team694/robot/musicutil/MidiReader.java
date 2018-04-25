@@ -33,7 +33,7 @@ public class MidiReader {
 				MidiMessage message = event.getMessage();
 				if (message instanceof ShortMessage) {
 					ShortMessage sm = (ShortMessage) message;
-					System.out.print(", command: " + sm.getCommand() + ", channel: " + sm.getChannel() + ", note: " + sm.getData1());
+					System.out.print(", command: " + sm.getCommand() + ", channel: " + sm.getChannel() + ", note: " + sm.getData1() + ", vel: " + sm.getData2());
 					if (sm.getCommand() == NOTE_ON) {
 						System.out.print(": ON!");
 					} else if (sm.getCommand() == NOTE_OFF) {

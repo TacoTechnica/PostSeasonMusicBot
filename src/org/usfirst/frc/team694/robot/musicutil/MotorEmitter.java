@@ -4,8 +4,6 @@ import edu.wpi.first.wpilibj.SpeedController;
 
 public class MotorEmitter implements Emitter {
 
-	private static final int MIDDLE_C_MIDI = 60;
-	
 	// When we're doing middle c, what should we scale our output to?
 	protected double middleCScale;
 
@@ -20,7 +18,7 @@ public class MotorEmitter implements Emitter {
 
 	// Returns the frequency our motor needs to travel to create a note
 	protected double getNoteFreq(int note) {
-		note -= MIDDLE_C_MIDI;
+		note -= Player.MIDDLE_C_MIDI;
 		return middleCScale * Math.pow(2.0, (double) note/12.0);
 	}
 

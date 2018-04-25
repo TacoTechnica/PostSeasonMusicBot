@@ -20,7 +20,9 @@ import javax.sound.midi.Track;
  */
 public class Player extends Thread {
 
-	private static final double SPEED_SCALE = 0.1;
+	public static final int MIDDLE_C_MIDI = 60;
+
+	private static final double SPEED_SCALE = 1;
 
 	private static final int NOTE_ON = 0x90;
 	private static final int NOTE_OFF = 0x80;
@@ -69,7 +71,8 @@ public class Player extends Thread {
 		startTime = System.currentTimeMillis();
 
 		// Start by the 1st note
-		startTime += (track.get(0).getTick() - 5) / SPEED_SCALE;
+		currentEvent = track.get(0);
+		startTime += (currentEvent.getTick() - 5) / SPEED_SCALE;
 
 		while(running) {
 			long currentTime = (long) (SPEED_SCALE * (System.currentTimeMillis() - startTime));
@@ -81,8 +84,7 @@ public class Player extends Thread {
 			}
 
 			// Play all of the current notes
-			while(currentEvent == null || currentEvent.getTick() <= currentTime) {
-				currentEvent = track.get(eventIndex);
+			while(currentEvent.getTick() <= currentTime) {
 				MidiMessage m = currentEvent.getMessage();
 				if (m instanceof ShortMessage) {
 					ShortMessage sm = (ShortMessage) m;
@@ -130,6 +132,7 @@ public class Player extends Thread {
 					}
 				}
 				eventIndex++;
+				currentEvent = track.get(eventIndex);
 			}
 		}
 		System.out.println("[Player] finish!");
