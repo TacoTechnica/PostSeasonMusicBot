@@ -2,7 +2,7 @@ package org.usfirst.frc.team694.robot.musicutil;
 
 import org.usfirst.frc.team694.robot.subsystems.Lift;
 
-public class LiftEmitter implements Emitter {
+public class LiftEmitter extends Emitter {
 
 	private Lift lift;
 
@@ -10,8 +10,6 @@ public class LiftEmitter implements Emitter {
 	private double downCScale;
 
 	private int direction = 1;
-
-	private int vel;
 
 	public LiftEmitter(Lift lift, double upCScale, double downCScale) {
 		this.lift = lift;
@@ -27,7 +25,7 @@ public class LiftEmitter implements Emitter {
 
 	@Override
 	public void emitNote(int note, int vel) {
-		this.vel = vel;
+		super.emitNote(note, vel);
 
 		if (direction == -1 && lift.isAtBottom()) {
 			direction = 1;
@@ -42,11 +40,6 @@ public class LiftEmitter implements Emitter {
 	@Override
 	public void silence() {
 		lift.setHeight(lift.getLiftHeight());
-	}
-
-	@Override
-	public int getVelocity() {
-		return vel;
 	}
 
 }

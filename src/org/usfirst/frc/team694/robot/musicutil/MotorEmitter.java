@@ -2,14 +2,12 @@ package org.usfirst.frc.team694.robot.musicutil;
 
 import edu.wpi.first.wpilibj.SpeedController;
 
-public class MotorEmitter implements Emitter {
+public class MotorEmitter extends Emitter {
 
 	// When we're doing middle c, what should we scale our output to?
 	protected double middleCScale;
 
 	protected SpeedController motor;
-
-	protected int velocity = 0;
 
 	public MotorEmitter(SpeedController motor, double middleCScale) {
 		this.motor = motor;
@@ -23,8 +21,9 @@ public class MotorEmitter implements Emitter {
 	}
 
 	@Override
-	public void emitNote(int note, int velocity) {
-		this.velocity = velocity;
+	public void emitNote(int note, int vel) {
+		super.emitNote(note, vel);
+
 		double freq = getNoteFreq(note);
 		motor.set(freq);
 	}
@@ -34,9 +33,5 @@ public class MotorEmitter implements Emitter {
 		motor.set(0);
 	}
 
-	@Override
-	public int getVelocity() {
-		return velocity;
-	}
 
 }

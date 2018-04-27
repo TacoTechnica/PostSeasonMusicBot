@@ -6,8 +6,16 @@ package org.usfirst.frc.team694.robot.musicutil;
  * 
  */
 
-public interface Emitter {
-	public void emitNote(int note, int vel);
-	public void silence();
-	public int getVelocity();
+public abstract class Emitter {
+	protected int vel;
+
+	public void emitNote(int note, int vel) {
+		this.vel = vel;
+	}
+
+	public abstract void silence();
+
+	public int getVelocity() {
+		return vel;
+	}
 }
